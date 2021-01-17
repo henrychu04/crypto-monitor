@@ -12,6 +12,8 @@ let id = split[5];
 let token = split[6];
 const webhook = new Discord.WebhookClient(id, token);
 
+const attachment = new Discord.MessageAttachment('./images/bitcoinLogo.png', 'bitcoinLogo.png');
+
 let job = new CronJob(
   '0/5 * * * *',
   function () {
@@ -27,14 +29,12 @@ job.start();
 let cryptoArray = ['BTC-USD', 'ETH-USD', 'LTC-USD', 'LINK-USD'];
 
 let monitor = async () => {
-  const attachment = new Discord.MessageAttachment('./images/bitcoinLogo.png', 'bitcoinLogo.png');
-  
   const embed = new Discord.MessageEmbed()
-  .setColor('#070F15')
-  .attachFiles(attachment)
-  .setAuthor('Crypto Monitor', 'attachment://bitcoinLogo.png', 'https://pro.coinbase.com/trade/')
-  .setTimestamp();
-  
+    .setColor('#070F15')
+    .attachFiles(attachment)
+    .setAuthor('Crypto Monitor', 'attachment://bitcoinLogo.png', 'https://pro.coinbase.com/trade/')
+    .setTimestamp();
+
   try {
     for (crypto of cryptoArray) {
       await publicClient
