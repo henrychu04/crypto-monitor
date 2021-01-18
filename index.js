@@ -11,15 +11,34 @@ const webhookURL = process.env.WEBHOOK;
 const webhook = parseWebhook(webhookURL);
 
 // Cryptocurrency options
+
+/* Monitor rate options:
+ *  1 minute: 60
+ *  5 minutes: 300
+ *  15 minutes: 900
+ *  1 hour: 3600
+ *  6 hours: 21600
+ *  24 hours: 86400
+ */
+
+let monitorRate = 300;
+
+// Up to 25 tickers, since the max amount of fields in a Discord embed is 25
+
 let cryptoArray = ['BTC-USD', 'ETH-USD', 'LTC-USD', 'LINK-USD'];
+
+// Can include the hourly chart of
+
 let includeChart = true;
 let cryptoChart = 'BTC-USD';
 
-console.log(`Monitor started ...\nMonitoring [${cryptoArray}] ...`);
+console.log(
+  `Monitor started ...\nMonitor rate at ${monitorRateString(monitorRate)} ...\nMonitoring [${cryptoArray}] ...`
+);
 if (includeChart) console.log(`Charting ${cryptoChart} ...`);
 
 let job = new CronJob(
-  '0/5 * * * *',
+  parseRate(monitorRate),
   function () {
     monitor();
   },
@@ -121,11 +140,11 @@ async function generateChart() {
       display: true,
       fontColor: 'black',
       padding: 5,
-      text: 'One Hour Chart',
+      text: parseChartTitle(monitorRate),
     },
   };
 
-  let historic = await publicClient.getProductHistoricRates(cryptoChart, { granularity: 300 });
+  let historic = await publicClient.getProductHistoricRates(cryptoChart, { granularity: monitorRate });
 
   let open = 0;
   let close = 0;
@@ -171,4 +190,55 @@ function parseWebhook(webhookURL) {
   let id = split[5];
   let token = split[6];
   return new Discord.WebhookClient(id, token);
+}
+
+function monitorRateString(monitorRate) {
+  switch (monitorRate) {
+    case 60:
+      return '1 m';
+    case 300:
+      return '5 m';
+    case 900:
+      return '15 m';
+    case 3600:
+      return '1 h';
+    case 21600:
+      return '6 h';
+    case 86400:
+      return '1 d';
+  }
+}
+
+function parseRate(monitorRate) {
+  switch (monitorRate) {
+    case 60:
+      return '0/1 * * * *';
+    case 300:
+      return '0/5 * * * *';
+    case 900:
+      return '0/15 * * * *';
+    case 3600:
+      return '0 * * * *';
+    case 21600:
+      return '0 0/6 * * *';
+    case 86400:
+      return '0 0 * * *';
+  }
+}
+
+function parseChartTitle(monitorRate) {
+  switch (monitorRate) {
+    case 60:
+      return 'One Minute Chart';
+    case 300:
+      return 'Five Minute Chart';
+    case 900:
+      return '15 Minute Chart';
+    case 3600:
+      return 'Hourly Chart';
+    case 21600:
+      return 'Six Hour Chart';
+    case 86400:
+      return 'Daily Chart';
+  }
 }
