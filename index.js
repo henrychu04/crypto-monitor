@@ -70,8 +70,8 @@ let monitor = async () => {
             inline: true,
           });
         })
-        .catch((error) => {
-          console.log(error);
+        .catch((err) => {
+          console.log(err);
         });
     }
 
