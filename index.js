@@ -27,7 +27,7 @@ let monitorRate = 300;
 
 let cryptoArray = ['BTC-USD', 'ETH-USD', 'LTC-USD', 'LINK-USD'];
 
-// Can include the hourly chart of
+// Can include the chart of a specified crypto
 
 let includeChart = true;
 let cryptoChart = 'BTC-USD';
