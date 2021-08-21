@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const CoinbasePro = require('coinbase-pro');
 const publicClient = new CoinbasePro.PublicClient();
 const QuickChart = require('quickchart-js');
-const CronJob = require('cron').CronJob;
 require('dotenv').config();
 const attachment = new Discord.MessageAttachment('./images/bitcoinLogo.png', 'bitcoinLogo.png');
 
@@ -32,21 +31,21 @@ let cryptoArray = ['BTC-USD', 'ETH-USD', 'LTC-USD', 'LINK-USD'];
 let includeChart = true;
 let cryptoChart = 'BTC-USD';
 
-console.log(
-  `Monitor started ...\nMonitor rate at ${monitorRateString(monitorRate)} ...\nMonitoring [${cryptoArray}] ...`
-);
-if (includeChart) console.log(`Charting ${cryptoChart} ...`);
+(async () => {
+  console.log(
+    `Monitor started ...\nMonitor rate at ${monitorRateString(monitorRate)} ...\nMonitoring [${cryptoArray}] ...`
+  );
+  if (includeChart) console.log(`Charting ${cryptoChart} ...`);
 
-let job = new CronJob(
-  parseRate(monitorRate),
-  function () {
-    monitor();
-  },
-  null,
-  true,
-  'America/New_York'
-);
-job.start();
+  while (1) {
+    try {
+      monitor();
+    } catch (err) {
+      console.log(err);
+    }
+    await sleep(monitorRate);
+  }
+})();
 
 let monitor = async () => {
   const embed = new Discord.MessageEmbed()
@@ -185,6 +184,10 @@ async function generateChart() {
   return myChart.getUrl();
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function parseWebhook(webhookURL) {
   let split = webhookURL.split('/');
   let id = split[5];
@@ -206,23 +209,6 @@ function monitorRateString(monitorRate) {
       return '6 h';
     case 86400:
       return '1 d';
-  }
-}
-
-function parseRate(monitorRate) {
-  switch (monitorRate) {
-    case 60:
-      return '0/1 * * * *';
-    case 300:
-      return '0/5 * * * *';
-    case 900:
-      return '0/15 * * * *';
-    case 3600:
-      return '0 * * * *';
-    case 21600:
-      return '0 0/6 * * *';
-    case 86400:
-      return '0 0 * * *';
   }
 }
 
